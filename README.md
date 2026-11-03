@@ -4,6 +4,8 @@
 
 项目目录：`D:\Files\Java\code\笔试项目\小影全栈`。2026-11-03用户将执行范围扩大为T01～T22，学习问答暂缓。实际验收见 [验证记录](docs/验证记录.md)，进度与交接见 [开发TODO](docs/开发TODO.md)，不要根据源码存在推定所有环境已通过。
 
+仓库：[PoplarPoplar/xiaoying_quanzhan](https://github.com/PoplarPoplar/xiaoying_quanzhan)。T01～T22开发交付任务已完成，用户学习实践仍待完成。最终源码包位于 `dist/xiaoying-source-final.zip`（与交接文档提交后的Git树一致）。
+
 ## 快速启动（容器交付入口）
 
 需要可连接的 Docker Linux 引擎与 Compose，不需要宿主机预装Java/Node/MySQL。
@@ -25,7 +27,7 @@ docker compose start
 
 日常停止/重启不清卷。数据库与私人媒体分别保存在mysql-data、media-data中；不使用 `down -v` 作为重启命令。
 
-当前本机Docker客户端可用，但Linux引擎不可连接，启动所需Windows服务缺少系统服务控制权限；容器实际运行未验证。当前源码生产服务已在 http://localhost:3000 启动，后端8080，独立MySQL13306。
+GitHub Actions Linux环境已实际通过镜像构建、三服务健康启动、完整API及保留卷重建验收。本机Windows的Docker服务权限限制仍存在，但不影响已完成的远程容器验收。
 
 已执行：Java真实MySQL测试8项、前端行为测试9项、lint/类型检查/生产构建、Java直连与Next生产代理API冒烟各8组、Chrome真实交互6组均通过。截图和命令详见验证记录。
 
@@ -79,7 +81,9 @@ Java测试使用真实MySQL，不启动数据库就不会通过。请使用独�
 
 浏览器验证：前后端运行后，在项目根目录执行 `node frontend/tests/browser-smoke.mjs`。Windows默认使用本机Chrome；Linux先在frontend执行 `npx playwright install chromium`。测试新增匿名演示数据并输出docs/browser截图和results.json。
 
-Linux下使用 `./mvnw`。CI对push/PR执行前端独立lint/类型检查/测试/构建、Java verify与MySQL、Compose构建启动及真实API冒烟。远程流水线未触发就不记为通过。
+Linux下使用 `./mvnw`。CI对push/PR执行前端独立lint/类型检查/测试/构建、Java verify与MySQL、Compose构建启动及真实API冒烟。实际远程验收已通过：[运行41643742421](https://github.com/PoplarPoplar/xiaoying_quanzhan/actions/runs/41643742421)，基线提交 `f44bcd3dc4ab7c3e72a9e742c421046cd0fbf3ad`。随后仅更新交接文档，不重复运行同一套检查。
+
+容器专项入口：`node scripts/container-verify.mjs`，使用唯一测试项目且拒绝已有卷，重建前后各跑完整smoke，比较会话、历史、任务快照、图片SHA256和种子/Flyway数量，保留卷。CI上传14天有效的日志和报告，结果摘要永久保存在 `docs/ci/remote-verification.json`。
 
 ## 页面与演示
 
@@ -140,8 +144,9 @@ Java入口在 `backend/src/main/java/com/xiaoying`：ApiController处理HTTP；I
 
 PowerShell7执行 `pwsh -File scripts/package.ps1` 生成源码ZIP，白名单排除node_modules、.next、target、真实.env、私人数据、日志和原始试卷。已有同名包时使用新的OutputName，不自动覆盖。包必须包含锁文件、迁移SQL、测试、CI、Dockerfile和Compose。
 
-[来源与AI工作流](docs/来源与AI工作流.md)记录实际分工与素材边界；实际投入未由用户确认，不虚构工时。未自动发布、推送或交卷。用户亲手练习与口述仍待完成，集中开发通过不代表用户已掌握。
+[来源与AI工作流](docs/来源与AI工作流.md)记录实际分工与素材边界；实际投入未由用户确认，不虚构工时。已按用户授权推送到指定GitHub仓库并完成远程验收，未代替用户向招聘方交卷。用户亲手练习与口述仍待完成，集中开发通过不代表用户已掌握。
 
 需求依据：[需求分析与实施方案](docs/需求分析与实施方案.md)；[学习目标与逐轮实践](docs/学习目标与逐轮实践.md)；[开发边界与注意事项](docs/开发边界与注意事项.md)。
+
 
 

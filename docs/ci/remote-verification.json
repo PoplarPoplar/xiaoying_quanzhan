@@ -1,0 +1,56 @@
+{
+  "repository": "https://github.com/PoplarPoplar/xiaoying_quanzhan",
+  "commit": "f44bcd3dc4ab7c3e72a9e742c421046cd0fbf3ad",
+  "runId": 41643742421,
+  "runUrl": "https://github.com/PoplarPoplar/xiaoying_quanzhan/actions/runs/41643742421",
+  "jobs": [
+    {
+      "id": 125943533751,
+      "name": "containers",
+      "conclusion": "success"
+    },
+    {
+      "id": 125943534169,
+      "name": "frontend",
+      "conclusion": "success"
+    },
+    {
+      "id": 125943534329,
+      "name": "backend",
+      "conclusion": "success"
+    }
+  ],
+  "container": {
+    "project": "xiaoying-verify-41643742421-1",
+    "base": "http://localhost:3000",
+    "startedAt": "2026-11-03T13:22:31.763Z",
+    "checks": [
+      {
+        "name": "fresh project built and all three services healthy"
+      },
+      {
+        "name": "fresh container API smoke passed"
+      },
+      {
+        "name": "containers recreated with same identity, history, task snapshot, exact uploaded/result bytes and seeds",
+        "taskId": "3e44dcb9-c068-48d2-8e0e-af0824dfe31a",
+        "resultSha256": "41aff20ee0d4455eb851e47e77cd47c423e2b4e2b656b0af43e496ae8749b857",
+        "assetSha256": [
+          "41aff20ee0d4455eb851e47e77cd47c423e2b4e2b656b0af43e496ae8749b857",
+          "41aff20ee0d4455eb851e47e77cd47c423e2b4e2b656b0af43e496ae8749b857"
+        ],
+        "volumes": [
+          "xiaoying-verify-41643742421-1_media-data",
+          "xiaoying-verify-41643742421-1_mysql-data"
+        ],
+        "databaseCountsBeforeAndAfter": "4\n1"
+      },
+      {
+        "name": "recreated container full API smoke passed"
+      }
+    ],
+    "status": "passed",
+    "finishedAt": "2026-11-03T13:25:32.198Z",
+    "volumesRemoved": false
+  }
+}

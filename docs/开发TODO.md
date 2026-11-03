@@ -4,7 +4,7 @@
 
 项目唯一目录：`D:\Files\Java\code\笔试项目\小影全栈`。
 
-当前事实（2026-11-03）：用户已授权集中完成T01～T22并允许子agent，源码、测试和交付配置已生成，本地真实闭环已验证；容器运行与远程CI尚未验证。具体证据以第8节为准。用户练习和掌握仍待完成。
+当前事实（2026-11-03）：用户已授权集中完成T01～T22并允许子agent，源码、测试和交付配置已生成，本地真实闭环已验证；容器运行、重建持久化及远程CI已在GitHub Actions实际验证。具体证据以第8节及第11节为准。用户练习和掌握仍待完成。
 
 ## 1. 开始前阅读与文档职责
 
@@ -289,9 +289,9 @@ docs/开发边界与注意事项.md，
 | T17 | 已验证 | docs/验证记录.md；真实API/浏览器 | 详见README限制 | 待完成 |
 | T18 | 已验证 | backend/target/verify.log；8项真实MySQL测试 | 详见README限制 | 待完成 |
 | T19 | 已验证 | 前端行为测试；docs/browser/results.json | 详见README限制 | 待完成 |
-| T20 | 已实现待容器验证 | Dockerfile/Compose解析通过 | 系统服务控制权限受限，Linux引擎未启动 | 待完成 |
-| T21 | 已实现，远程未验证 | .github/workflows/ci.yml；本地检查 | 未推送，未触发GitHub Actions | 待完成 |
-| T22 | 源码交付就绪，容器验收待补 | README/交接/打包脚本；源码ZIP校验见验证记录 | 容器运行与远程CI仍受上述限制 | 待完成 |
+| T20 | 已验证 | CI41643742421；docs/ci/remote-verification.json | Windows本机引擎权限限制；Linux容器验收已通过 | 待完成 |
+| T21 | 已验证 | CI41643742421三个job全部success；前端9/Java8测试及构建 | 无开发阻塞；开发依赖moderate见README | 待完成 |
+| T22 | 开发交付完成 | GitHub仓库、验收提交及CI链接、最终源码ZIP | 用户实际投入/学习实践与最终交卷待本人完成 | 待完成 |
 
 聊天中曾有环境初查：Node/npm和Git可运行，Java版本未确认，Docker客户端存在但当时未连接Linux引擎。此为历史观察，不代表当前环境，也不能据此将T01标已验证。
 
@@ -329,10 +329,10 @@ docs/开发边界与注意事项.md，
 | 工作台历史 | 当前模板个人任务，全部历史入口看所有模板 | 工作台过滤当前模板，history全部本人任务，共用实体快照 |
 | 模拟控制 | demo/test限定failAt与阶段耗时 | demo/test允许failAt与每阶段0～30000ms；正式模式拒绝覆盖 |
 
-集中开发已进入最终交付阶段，学习仍待完成；后续先补容器与远程CI证据。
+T01～T22开发交付已完成；用户学习与实际投入记录仍待本人实践后填写。
 
 
-## 10. 2026-11-03 开发交接
+## 10. 2026-11-03 初版交接（历史，后续结果见第11节）
 
 - 日期/执行者：2026-11-03，Codex主agent与后端、前端、交付三个子agent；用户明确授权集中开发。
 - 实际范围：T01～T22源码、测试、容器/CI配置、README与交接；逐轮问答暂缓。
@@ -345,3 +345,16 @@ docs/开发边界与注意事项.md，
 - 用户练习：待完成，未记录用户掌握或实践经历。小练习可在演示控制将单阶段耗时改为5000ms，先预测提交返回/阶段显示/第二任务排队，再观察网络与卡片；验证依据为202先返回、GET阶段持续变化、两ID独立。故障练习为临时阻断GET后恢复，口述追问留待用户实践后结合实际记录。
 - 下一步：源码包校验结果见验证记录；管理员启动Docker引擎后按README跑Compose及smoke，补容器持久化；用户实际练习后再评估学习情况。外发、发布、推送、交卷仍由用户决定。
 
+
+## 11. GitHub最终验收交接（2026-11-03）
+
+- 用户指定仓库：https://github.com/PoplarPoplar/xiaoying_quanzhan，已检查为空后同步源码，保留正常Git提交历史，无force push。
+- 开发验收基线：f44bcd3dc4ab7c3e72a9e742c421046cd0fbf3ad。
+- 最终CI：https://github.com/PoplarPoplar/xiaoying_quanzhan/actions/runs/41643742421，frontend、backend、containers全部success。
+- T20实际验证：干净项目初始化、三镜像/服务健康启动、重建前后各8组完整API、保留两个卷重建全部容器，同Cookie身份、历史、终态任务及version、上传/结果字节SHA256一致；模板4条、成功迁移1条前后相同。
+- T21实际验证：远程前端lint/typecheck/9测试/生产build，Java真实MySQL8测试/verify，容器专项。CI收集日志、JUnit和JSON，14天artifact；永久摘要见docs/ci/remote-verification.json。
+- 修复：Git不保留空public目录，补.gitkeep确保干净检出Docker COPY有效；mvnw固定LF；持久化脚本因spawnSync重建后复用旧连接而fetch失败，改为每次新连接，保留全部数据断言且不重试POST，复验通过。
+- T22交付：README/方案/来源/验证记录已同步；最终源码ZIP由文档更新后的Git树归档，附SHA256，无运行数据、凭据、缓存或原始试卷图。
+- 当前边界：本机Windows Docker服务权限限制仍存在；Linux远程已完成容器验收，不再作为T20阻塞。单实例内存队列、无续跑/幂等、模拟结果和依赖限制仍按README保留。
+- 学习：用户练习、掌握程度、实际投入及最终向招聘方交卷仍由本人完成，不以AI验证代替。
+- 后续文档提交只整理证据与交接，运行代码与上述已验收基线一致。
