@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/xiaoying?connectionTimeZone=UTC}
+    username: ${DB_USERNAME:xiaoying}
+    password: ${DB_PASSWORD:xiaoying-local}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  jackson:
+    time-zone: UTC
+app:
+  storage: ${STORAGE_DIR:./data}
+  origin: ${APP_ORIGIN:http://localhost:3000}
+  secure-cookie: ${COOKIE_SECURE:false}
+  queue-capacity: ${WORKER_QUEUE_CAPACITY:20}
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true

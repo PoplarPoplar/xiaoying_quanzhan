@@ -1,0 +1,6 @@
+CREATE TABLE app_user(id VARCHAR(36) PRIMARY KEY, display_name VARCHAR(80) NOT NULL);
+CREATE TABLE user_session(token_hash CHAR(64) PRIMARY KEY,user_id VARCHAR(36) NOT NULL,expires_at BIGINT NOT NULL,FOREIGN KEY(user_id) REFERENCES app_user(id));
+CREATE TABLE material_template(id VARCHAR(40) PRIMARY KEY,category_id VARCHAR(40) NOT NULL,title VARCHAR(120) NOT NULL,description VARCHAR(500) NOT NULL,required_image_count INT NOT NULL);
+INSERT INTO material_template VALUES ('postcard','travel','山野来信','将旅途的灵感收藏成一张明信片。结果使用本地演示素材，不进行真实 AI 合成。',1),('city','travel','霓虹漫游','上传两张照片，开启城市灵感制作。结果为本地预置图片。',2),('portrait','portrait','光影肖像','一张照片，体验三阶段异步制作流程。结果为本地预置图片。',1),('duo','portrait','双人故事','上传两张照片，记录并列的故事。结果为本地预置图片。',2);
+CREATE TABLE asset(id VARCHAR(36) PRIMARY KEY,user_id VARCHAR(36) NOT NULL,storage_path VARCHAR(100) NOT NULL,mime_type VARCHAR(40) NOT NULL,size_bytes BIGINT NOT NULL,INDEX asset_owner(user_id,id),FOREIGN KEY(user_id) REFERENCES app_user(id));
+CREATE TABLE production_task(id VARCHAR(36) PRIMARY KEY,user_id VARCHAR(36) NOT NULL,template_id VARCHAR(40) NOT NULL,status VARCHAR(20) NOT NULL,version BIGINT NOT NULL,payload LONGTEXT NOT NULL,created_at VARCHAR(40) NOT NULL,INDEX task_history(user_id,created_at,id),FOREIGN KEY(user_id) REFERENCES app_user(id),FOREIGN KEY(template_id) REFERENCES material_template(id));

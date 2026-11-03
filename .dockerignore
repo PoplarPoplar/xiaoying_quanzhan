@@ -1,0 +1,12 @@
+.git
+**/node_modules
+**/.next
+**/target
+**/coverage
+**/.env
+**/.env.local
+**/*.log
+data
+dist
+.local
+docs/ui-reference

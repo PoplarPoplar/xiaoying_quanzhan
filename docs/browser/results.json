@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-03",
+  "base": "http://localhost:3000",
+  "passed": [
+    "Java template list and category filtering in browser",
+    "required upload, oversize client validation, real upload and remove",
+    "two real tasks, query failure preserved business state, GET recovery, refresh restoration, mixed outcomes, terminal polling stops",
+    "result preview, Escape close and focus restoration",
+    "history route and isolated browser identity",
+    "mobile two-slot real upload and no horizontal overflow"
+  ],
+  "pageErrors": []
+}
