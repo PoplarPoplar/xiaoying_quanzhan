@@ -1,10 +1,17 @@
 name: verify
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
 jobs:
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
+        shell: bash
         working-directory: frontend
     steps:
       - uses: actions/checkout@v4
@@ -13,13 +20,22 @@ jobs:
           node-version: 24.11.0
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run test -- --run
-      - run: npm run build
+      - run: mkdir -p ../artifacts/frontend
+      - run: npm ci 2>&1 | tee ../artifacts/frontend/install.log
+      - run: npm run lint 2>&1 | tee ../artifacts/frontend/lint.log
+      - run: npm run typecheck 2>&1 | tee ../artifacts/frontend/typecheck.log
+      - run: npm run test -- --run --reporter=default --reporter=junit --outputFile=../artifacts/frontend/junit.xml 2>&1 | tee ../artifacts/frontend/test.log
+      - run: npm run build 2>&1 | tee ../artifacts/frontend/build.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/frontend/
+          if-no-files-found: warn
+          retention-days: 14
   backend:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       mysql:
         image: mysql:8.4.8
@@ -38,6 +54,7 @@ jobs:
       SPRING_PROFILES_ACTIVE: demo
     defaults:
       run:
+        shell: bash
         working-directory: backend
     steps:
       - uses: actions/checkout@v4
@@ -46,16 +63,43 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
-      - run: chmod +x mvnw && ./mvnw -B verify
+      - run: mkdir -p ../artifacts/backend
+      - run: chmod +x mvnw && ./mvnw -B verify 2>&1 | tee ../artifacts/backend/verify.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/backend/
+            backend/target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 14
   containers:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: xiaoying-verify-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose config --quiet
-      - run: docker compose build
-      - run: docker compose up -d --wait --wait-timeout 240
-      - run: node scripts/smoke.mjs http://localhost:3000
-      - if: always()
-        run: docker compose logs --no-color
-      - if: always()
-        run: docker compose down
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.0
+      - name: Fresh build, full API smoke, database and media persistence after container recreation
+        run: |
+          mkdir -p artifacts/containers
+          node scripts/container-verify.mjs 2>&1 | tee artifacts/containers/driver.log
+      - name: Collect logs and stop only this verification project (retain volumes)
+        if: always()
+        run: |
+          mkdir -p artifacts/containers
+          docker compose -p "$COMPOSE_PROJECT_NAME" ps --all --format json > artifacts/containers/cleanup-ps.json || true
+          docker compose -p "$COMPOSE_PROJECT_NAME" logs --no-color > artifacts/containers/cleanup-logs.txt 2>&1 || true
+          docker compose -p "$COMPOSE_PROJECT_NAME" down
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: containers-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/containers/
+          if-no-files-found: error
+          retention-days: 14
+

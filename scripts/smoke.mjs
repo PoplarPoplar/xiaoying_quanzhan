@@ -1,10 +1,20 @@
 import assert from 'node:assert/strict';
 import { deflateSync } from 'node:zlib';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 
 // Real API smoke: creates only new anonymous demo data; never clears existing data.
 const base = (process.argv[2] || 'http://localhost:3000').replace(/\/$/, '');
 const origin = process.env.SMOKE_ORIGIN || new URL(base).origin;
 const passed = [];
+const startedAt = new Date().toISOString();
+function saveReport(status, error) {
+  if (!process.env.SMOKE_REPORT_PATH) return;
+  const output = path.resolve(process.env.SMOKE_REPORT_PATH);
+  mkdirSync(path.dirname(output), { recursive: true });
+  writeFileSync(output, JSON.stringify({ status, base, startedAt, finishedAt: new Date().toISOString(), passed, error }, null, 2));
+}
+process.on('uncaughtExceptionMonitor', error => saveReport('failed', error.stack || String(error)));
 const mark = message => { passed.push(message); console.log(`PASS ${message}`); };
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 function crc32(bytes) {
@@ -92,4 +102,7 @@ const foreignHistory = await b('/api/tasks'); assert.equal(foreignHistory.items.
 const inactive = await a('/api/tasks/active'); assert.equal((Array.isArray(inactive) ? inactive : inactive.items).length, 0);
 mark('history restored from Java; other user cannot see records; finished tasks no longer active');
 console.log(JSON.stringify({passed:passed.length, base, userData:'new anonymous demo sessions only'}, null, 2));
+
+
+saveReport('passed');
 

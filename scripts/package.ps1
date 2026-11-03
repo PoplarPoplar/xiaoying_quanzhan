@@ -8,7 +8,7 @@ $zipPath = Join-Path $distRoot $OutputName
 if (Test-Path -LiteralPath $zipPath) { throw "Already exists: $zipPath. Choose another OutputName." }
 Add-Type -AssemblyName System.IO.Compression
 $files = @()
-foreach ($name in @('README.md','compose.yaml','.env.example','.gitignore','.dockerignore')) { $files += Get-Item -LiteralPath (Join-Path $projectRoot $name) }
+foreach ($name in @('README.md','compose.yaml','.env.example','.gitignore','.dockerignore','.gitattributes')) { $files += Get-Item -LiteralPath (Join-Path $projectRoot $name) }
 foreach ($directory in @('frontend','backend','docs','scripts','.github')) {
   $files += Get-ChildItem -LiteralPath (Join-Path $projectRoot $directory) -File -Recurse -Force | Where-Object {
     $relative = [IO.Path]::GetRelativePath($projectRoot, $_.FullName).Replace('\','/')
@@ -42,4 +42,5 @@ try {
   } finally { $check.Dispose() }
 } finally { $readStream.Dispose() }
 Get-FileHash -Algorithm SHA256 -LiteralPath $zipPath
+
 
