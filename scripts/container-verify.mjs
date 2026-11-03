@@ -39,7 +39,8 @@ function fullSmoke(phase) {
 }
 let cookie = '';
 async function api(route, { method = 'GET', body, status = 200, binary = false } = {}) {
-  const headers = { Origin: origin };
+  // Container recreation invalidates pooled sockets. Use fresh connections for this harness.
+  const headers = { Origin: origin, Connection: 'close' };
   if (cookie) headers.Cookie = cookie;
   if (body && !(body instanceof FormData)) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(body); }
   const response = await fetch(base + route, { method, headers, body, signal: AbortSignal.timeout(20000) });
@@ -105,7 +106,9 @@ try {
   check('recreated container full API smoke passed');
   report.status = 'passed';
 } catch (error) {
-  report.status = 'failed'; report.error = error.stack || String(error); process.exitCode = 1;
+  report.status = 'failed'; report.error = error.stack || String(error);
+  if (error.cause) report.errorCause = { name: error.cause.name, message: error.cause.message, code: error.cause.code, stack: error.cause.stack };
+  process.exitCode = 1;
 } finally {
   if (ownsProject) {
     diagnostics('final');
@@ -116,4 +119,5 @@ try {
   writeFileSync(path.join(out, 'results.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
 }
+
 
